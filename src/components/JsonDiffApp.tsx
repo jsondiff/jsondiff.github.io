@@ -186,24 +186,23 @@ const JsonDiffApp: React.FC = () => {
         bgcolor: "background.default",
       }}
     >
-      {/* ── Top Bar ── */}
+      {/* ── Top Bar (title + tabs + actions) ── */}
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
-          px: 3,
-          py: 1.5,
+          px: 2,
+          py: 0.75,
           bgcolor: "primary.main",
           color: "primary.contrastText",
           boxShadow: 2,
-          gap: 2,
+          gap: 1.5,
           flexShrink: 0,
         }}
       >
-        <CompareArrowsIcon sx={{ fontSize: 26 }} />
         <Typography
-          variant="h6"
-          sx={{ fontWeight: 700, letterSpacing: "-0.3px" }}
+          variant="subtitle1"
+          sx={{ fontWeight: 700, letterSpacing: "-0.3px", whiteSpace: "nowrap" }}
         >
           JSON Diff Tool
         </Typography>
@@ -214,20 +213,63 @@ const JsonDiffApp: React.FC = () => {
             label={`v${APP_VERSION}`}
             size="small"
             sx={{
-              height: 22,
-              fontSize: 11,
+              height: 20,
+              fontSize: 10,
               fontWeight: 600,
               bgcolor: "rgba(255,255,255,0.2)",
               color: "inherit",
-              "& .MuiChip-label": { px: 1 },
+              "& .MuiChip-label": { px: 0.75 },
             }}
           />
         </Tooltip>
+
+        <Tabs
+          value={activeTab}
+          onChange={(_, v) => {
+            setActiveTab(v);
+            if (v === "format") setHistoryOpen(false);
+          }}
+          sx={{
+            minHeight: 36,
+            ml: 0.5,
+            "& .MuiTabs-indicator": {
+              backgroundColor: "rgba(255,255,255,0.95)",
+              height: 2,
+            },
+            "& .MuiTab-root": {
+              color: "rgba(255,255,255,0.72)",
+              minHeight: 36,
+              minWidth: 0,
+              px: 1.5,
+              py: 0.5,
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: 13,
+              "&.Mui-selected": { color: "#fff" },
+            },
+          }}
+        >
+          <Tab
+            icon={<CompareArrowsIcon sx={{ fontSize: 16 }} />}
+            iconPosition="start"
+            label="Compare"
+            value="diff"
+          />
+          <Tab
+            icon={<AccountTreeIcon sx={{ fontSize: 16 }} />}
+            iconPosition="start"
+            label="Format & Tree"
+            value="format"
+          />
+        </Tabs>
+
         <Box sx={{ flexGrow: 1 }} />
+
         {activeTab === "diff" && (
           <Tooltip title="Comparison history">
             <IconButton
               color="inherit"
+              size="small"
               onClick={() => setHistoryOpen((o) => !o)}
               aria-label="Toggle history"
             >
@@ -237,48 +279,17 @@ const JsonDiffApp: React.FC = () => {
                 max={99}
                 invisible={historyEntries.length === 0}
               >
-                <HistoryIcon />
+                <HistoryIcon fontSize="small" />
               </Badge>
             </IconButton>
           </Tooltip>
         )}
-        <Typography variant="caption" sx={{ opacity: 0.75 }}>
+        <Typography
+          variant="caption"
+          sx={{ opacity: 0.75, display: { xs: "none", sm: "block" } }}
+        >
           jsondiff.github.io
         </Typography>
-      </Box>
-
-      {/* ── App Tabs ── */}
-      <Box
-        sx={{
-          bgcolor: "#ffffff",
-          borderBottom: "1px solid #e0e0e0",
-          px: 2,
-          flexShrink: 0,
-        }}
-      >
-        <Tabs
-          value={activeTab}
-          onChange={(_, v) => {
-            setActiveTab(v);
-            if (v === "format") setHistoryOpen(false);
-          }}
-          sx={{ minHeight: 42 }}
-        >
-          <Tab
-            icon={<CompareArrowsIcon sx={{ fontSize: 18 }} />}
-            iconPosition="start"
-            label="Compare"
-            value="diff"
-            sx={{ minHeight: 42, textTransform: "none", fontWeight: 600 }}
-          />
-          <Tab
-            icon={<AccountTreeIcon sx={{ fontSize: 18 }} />}
-            iconPosition="start"
-            label="Format & Tree"
-            value="format"
-            sx={{ minHeight: 42, textTransform: "none", fontWeight: 600 }}
-          />
-        </Tabs>
       </Box>
 
       {/* ── Diff Navigation Bar (only after compare) ── */}
