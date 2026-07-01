@@ -207,18 +207,22 @@ const JsonDiffApp: React.FC = () => {
         >
           JSON Diff Tool
         </Typography>
-        <Chip
-          label={`v${APP_VERSION}`}
-          size="small"
-          sx={{
-            height: 22,
-            fontSize: 11,
-            fontWeight: 600,
-            bgcolor: "rgba(255,255,255,0.2)",
-            color: "inherit",
-            "& .MuiChip-label": { px: 1 },
-          }}
-        />
+        <Tooltip
+          title={`Release ${APP_VERSION} — Compare, Format & Tree, and History`}
+        >
+          <Chip
+            label={`v${APP_VERSION}`}
+            size="small"
+            sx={{
+              height: 22,
+              fontSize: 11,
+              fontWeight: 600,
+              bgcolor: "rgba(255,255,255,0.2)",
+              color: "inherit",
+              "& .MuiChip-label": { px: 1 },
+            }}
+          />
+        </Tooltip>
         <Box sx={{ flexGrow: 1 }} />
         {activeTab === "diff" && (
           <Tooltip title="Comparison history">

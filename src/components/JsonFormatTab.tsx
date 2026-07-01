@@ -16,6 +16,7 @@ import {
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import {
   parseAndFormat,
   type IndentStyle,
@@ -114,8 +115,6 @@ const JsonFormatTab: React.FC = () => {
     setFormatted(null);
     setParsed(null);
   };
-
-  const isValid = parsed !== null && error === null && inputText.trim() !== "";
 
   return (
     <Box
@@ -219,22 +218,35 @@ const JsonFormatTab: React.FC = () => {
               flexWrap: "wrap",
             }}
           >
-            <FormControl size="small" sx={{ minWidth: 130 }}>
-              <InputLabel id="indent-label">Indent</InputLabel>
-              <Select
-                labelId="indent-label"
-                label="Indent"
-                value={indent}
-                onChange={(e) =>
-                  handleIndentChange(e.target.value as IndentStyle)
-                }
-              >
-                <MenuItem value="2">2 spaces</MenuItem>
-                <MenuItem value="3">3 spaces</MenuItem>
-                <MenuItem value="4">4 spaces</MenuItem>
-                <MenuItem value="tab">Tab</MenuItem>
-              </Select>
-            </FormControl>
+            <Tooltip
+              title="How far each nested level is indented in the formatted text — e.g. 2 spaces adds two spaces before every nested line. This is a display preference, not a JSON version."
+              placement="top"
+            >
+              <FormControl size="small" sx={{ minWidth: 180 }}>
+                <InputLabel id="indent-label">Pretty-print indent</InputLabel>
+                <Select
+                  labelId="indent-label"
+                  label="Pretty-print indent"
+                  value={indent}
+                  onChange={(e) =>
+                    handleIndentChange(e.target.value as IndentStyle)
+                  }
+                >
+                  <MenuItem value="2">2 spaces per level</MenuItem>
+                  <MenuItem value="3">3 spaces per level</MenuItem>
+                  <MenuItem value="4">4 spaces per level</MenuItem>
+                  <MenuItem value="tab">Tab per level</MenuItem>
+                </Select>
+              </FormControl>
+            </Tooltip>
+            <Tooltip
+              title="How far each nested level is indented in the formatted text — e.g. 2 spaces adds two spaces before every nested line. This is a display preference, not a JSON version."
+              placement="top"
+            >
+              <InfoOutlinedIcon
+                sx={{ fontSize: 18, color: "text.disabled", cursor: "help" }}
+              />
+            </Tooltip>
             <Button variant="contained" onClick={handleProcess}>
               Format
             </Button>
@@ -257,24 +269,6 @@ const JsonFormatTab: React.FC = () => {
             minWidth: 0,
           }}
         >
-          {isValid && (
-            <Box
-              sx={{
-                px: 2,
-                py: 0.75,
-                bgcolor: "#2e7d32",
-                color: "#fff",
-              }}
-            >
-              <Typography
-                variant="caption"
-                sx={{ fontWeight: 700, letterSpacing: "0.5px" }}
-              >
-                VALID (RFC 8259)
-              </Typography>
-            </Box>
-          )}
-
           <Box
             sx={{
               display: "flex",
