@@ -6,12 +6,14 @@ import {
   IconButton,
   Alert,
   Tooltip,
+  Badge,
 } from "@mui/material";
 import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import HistoryIcon from "@mui/icons-material/History";
 import {
   computeDiff,
   buildAnnotatedLines,
@@ -20,6 +22,9 @@ import {
 } from "../utils/jsonDiff";
 import DiffCodePanel from "./DiffCodePanel";
 import DiffSidebar from "./DiffSidebar";
+import ComparisonHistoryPanel from "./ComparisonHistoryPanel";
+import { useComparisonHistory } from "../hooks/useComparisonHistory";
+import type { ComparisonHistoryEntry } from "../types/comparisonHistory";
 
 const SAMPLE_LEFT = JSON.stringify(
   {
@@ -81,6 +86,10 @@ const JsonDiffApp: React.FC = () => {
     "type-mismatch": true,
     "value-mismatch": true,
   });
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  const { entries: historyEntries, saveComparison, rename, remove } =
+    useComparisonHistory();
 
   const visibleDiffs = differences.filter((d) => filters[d.type]);
   const activeDiff = visibleDiffs[activeDiffIndex];
@@ -103,7 +112,27 @@ const JsonDiffApp: React.FC = () => {
     setDifferences(diffs);
     setHasCompared(true);
     setActiveDiffIndex(0);
-  }, [leftText, rightText]);
+    saveComparison(leftText || "{}", rightText || "{}", diffs.length);
+  }, [leftText, rightText, saveComparison]);
+
+  const loadHistoryView = useCallback((entry: ComparisonHistoryEntry) => {
+    setLeftText(entry.leftText);
+    setRightText(entry.rightText);
+    const diffs = computeDiff(entry.leftText, entry.rightText);
+    setDifferences(diffs);
+    setHasCompared(true);
+    setActiveDiffIndex(0);
+    setError(null);
+  }, []);
+
+  const loadHistoryEdit = useCallback((entry: ComparisonHistoryEntry) => {
+    setLeftText(entry.leftText);
+    setRightText(entry.rightText);
+    setDifferences([]);
+    setHasCompared(false);
+    setActiveDiffIndex(0);
+    setError(null);
+  }, []);
 
   const handleReset = () => {
     setLeftText("");
@@ -169,6 +198,22 @@ const JsonDiffApp: React.FC = () => {
         >
           JSON Diff Tool
         </Typography>
+        <Tooltip title="Comparison history">
+          <IconButton
+            color="inherit"
+            onClick={() => setHistoryOpen((o) => !o)}
+            aria-label="Toggle history"
+          >
+            <Badge
+              badgeContent={historyEntries.length}
+              color="secondary"
+              max={99}
+              invisible={historyEntries.length === 0}
+            >
+              <HistoryIcon />
+            </Badge>
+          </IconButton>
+        </Tooltip>
         <Typography variant="caption" sx={{ opacity: 0.75 }}>
           jsondiff.github.io
         </Typography>
@@ -254,6 +299,16 @@ const JsonDiffApp: React.FC = () => {
 
       {/* ── Main Content ── */}
       <Box sx={{ flex: 1, display: "flex", overflow: "hidden", p: 2, gap: 2 }}>
+        {historyOpen && (
+          <ComparisonHistoryPanel
+            entries={historyEntries}
+            onView={loadHistoryView}
+            onEdit={loadHistoryEdit}
+            onRename={rename}
+            onDelete={remove}
+            onClose={() => setHistoryOpen(false)}
+          />
+        )}
         {!hasCompared ? (
           /* ── Input View ── */
           <Box sx={{ flex: 1, display: "flex", gap: 2, alignItems: "stretch" }}>
