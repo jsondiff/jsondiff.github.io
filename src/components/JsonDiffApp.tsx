@@ -7,6 +7,9 @@ import {
   Alert,
   Tooltip,
   Badge,
+  Tabs,
+  Tab,
+  Chip,
 } from "@mui/material";
 import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -14,6 +17,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import HistoryIcon from "@mui/icons-material/History";
+import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import {
   computeDiff,
   buildAnnotatedLines,
@@ -23,8 +27,12 @@ import {
 import DiffCodePanel from "./DiffCodePanel";
 import DiffSidebar from "./DiffSidebar";
 import ComparisonHistoryPanel from "./ComparisonHistoryPanel";
+import JsonFormatTab from "./JsonFormatTab";
 import { useComparisonHistory } from "../hooks/useComparisonHistory";
 import type { ComparisonHistoryEntry } from "../types/comparisonHistory";
+import { APP_VERSION } from "../version";
+
+type AppTab = "diff" | "format";
 
 const SAMPLE_LEFT = JSON.stringify(
   {
@@ -87,6 +95,7 @@ const JsonDiffApp: React.FC = () => {
     "value-mismatch": true,
   });
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<AppTab>("diff");
 
   const { entries: historyEntries, saveComparison, rename, remove } =
     useComparisonHistory();
@@ -194,33 +203,82 @@ const JsonDiffApp: React.FC = () => {
         <CompareArrowsIcon sx={{ fontSize: 26 }} />
         <Typography
           variant="h6"
-          sx={{ fontWeight: 700, flexGrow: 1, letterSpacing: "-0.3px" }}
+          sx={{ fontWeight: 700, letterSpacing: "-0.3px" }}
         >
           JSON Diff Tool
         </Typography>
-        <Tooltip title="Comparison history">
-          <IconButton
-            color="inherit"
-            onClick={() => setHistoryOpen((o) => !o)}
-            aria-label="Toggle history"
-          >
-            <Badge
-              badgeContent={historyEntries.length}
-              color="secondary"
-              max={99}
-              invisible={historyEntries.length === 0}
+        <Chip
+          label={`v${APP_VERSION}`}
+          size="small"
+          sx={{
+            height: 22,
+            fontSize: 11,
+            fontWeight: 600,
+            bgcolor: "rgba(255,255,255,0.2)",
+            color: "inherit",
+            "& .MuiChip-label": { px: 1 },
+          }}
+        />
+        <Box sx={{ flexGrow: 1 }} />
+        {activeTab === "diff" && (
+          <Tooltip title="Comparison history">
+            <IconButton
+              color="inherit"
+              onClick={() => setHistoryOpen((o) => !o)}
+              aria-label="Toggle history"
             >
-              <HistoryIcon />
-            </Badge>
-          </IconButton>
-        </Tooltip>
+              <Badge
+                badgeContent={historyEntries.length}
+                color="secondary"
+                max={99}
+                invisible={historyEntries.length === 0}
+              >
+                <HistoryIcon />
+              </Badge>
+            </IconButton>
+          </Tooltip>
+        )}
         <Typography variant="caption" sx={{ opacity: 0.75 }}>
           jsondiff.github.io
         </Typography>
       </Box>
 
+      {/* ── App Tabs ── */}
+      <Box
+        sx={{
+          bgcolor: "#ffffff",
+          borderBottom: "1px solid #e0e0e0",
+          px: 2,
+          flexShrink: 0,
+        }}
+      >
+        <Tabs
+          value={activeTab}
+          onChange={(_, v) => {
+            setActiveTab(v);
+            if (v === "format") setHistoryOpen(false);
+          }}
+          sx={{ minHeight: 42 }}
+        >
+          <Tab
+            icon={<CompareArrowsIcon sx={{ fontSize: 18 }} />}
+            iconPosition="start"
+            label="Compare"
+            value="diff"
+            sx={{ minHeight: 42, textTransform: "none", fontWeight: 600 }}
+          />
+          <Tab
+            icon={<AccountTreeIcon sx={{ fontSize: 18 }} />}
+            iconPosition="start"
+            label="Format & Tree"
+            value="format"
+            sx={{ minHeight: 42, textTransform: "none", fontWeight: 600 }}
+          />
+        </Tabs>
+      </Box>
+
       {/* ── Diff Navigation Bar (only after compare) ── */}
-      {hasCompared && (
+      {activeTab === "diff" && hasCompared && (
         <Box
           sx={{
             display: "flex",
@@ -287,7 +345,7 @@ const JsonDiffApp: React.FC = () => {
         </Box>
       )}
 
-      {error && (
+      {activeTab === "diff" && error && (
         <Alert
           severity="error"
           sx={{ mx: 3, mt: 1.5 }}
@@ -299,6 +357,10 @@ const JsonDiffApp: React.FC = () => {
 
       {/* ── Main Content ── */}
       <Box sx={{ flex: 1, display: "flex", overflow: "hidden", p: 2, gap: 2 }}>
+        {activeTab === "format" ? (
+          <JsonFormatTab />
+        ) : (
+          <>
         {historyOpen && (
           <ComparisonHistoryPanel
             entries={historyEntries}
@@ -436,6 +498,8 @@ const JsonDiffApp: React.FC = () => {
               </Box>
             )}
           </Box>
+        )}
+          </>
         )}
       </Box>
     </Box>
