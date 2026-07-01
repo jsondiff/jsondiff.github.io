@@ -16,7 +16,6 @@ import {
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import {
   parseAndFormat,
   type IndentStyle,
@@ -218,35 +217,22 @@ const JsonFormatTab: React.FC = () => {
               flexWrap: "wrap",
             }}
           >
-            <Tooltip
-              title="How far each nested level is indented in the formatted text — e.g. 2 spaces adds two spaces before every nested line. This is a display preference, not a JSON version."
-              placement="top"
-            >
-              <FormControl size="small" sx={{ minWidth: 180 }}>
-                <InputLabel id="indent-label">Pretty-print indent</InputLabel>
-                <Select
-                  labelId="indent-label"
-                  label="Pretty-print indent"
-                  value={indent}
-                  onChange={(e) =>
-                    handleIndentChange(e.target.value as IndentStyle)
-                  }
-                >
-                  <MenuItem value="2">2 spaces per level</MenuItem>
-                  <MenuItem value="3">3 spaces per level</MenuItem>
-                  <MenuItem value="4">4 spaces per level</MenuItem>
-                  <MenuItem value="tab">Tab per level</MenuItem>
-                </Select>
-              </FormControl>
-            </Tooltip>
-            <Tooltip
-              title="How far each nested level is indented in the formatted text — e.g. 2 spaces adds two spaces before every nested line. This is a display preference, not a JSON version."
-              placement="top"
-            >
-              <InfoOutlinedIcon
-                sx={{ fontSize: 18, color: "text.disabled", cursor: "help" }}
-              />
-            </Tooltip>
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel id="indent-label">Pretty-print spacing</InputLabel>
+              <Select
+                labelId="indent-label"
+                label="Pretty-print spacing"
+                value={indent}
+                onChange={(e) =>
+                  handleIndentChange(e.target.value as IndentStyle)
+                }
+              >
+                <MenuItem value="2">2 spaces per level</MenuItem>
+                <MenuItem value="3">3 spaces per level</MenuItem>
+                <MenuItem value="4">4 spaces per level</MenuItem>
+                <MenuItem value="tab">Tab per level</MenuItem>
+              </Select>
+            </FormControl>
             <Button variant="contained" onClick={handleProcess}>
               Format
             </Button>
